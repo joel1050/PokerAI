@@ -169,3 +169,5 @@ ranking = {
     '72o': 101,
     '82o': 101
 }
+
+#SOURCED FROM: https://www.reddit.com/r/poker/comments/n38auh/starting_hand_strength/
