@@ -21,13 +21,6 @@ def generate_deck():
 
     return deck
 
-deck = generate_deck()
-
-#declaring initial stack as 100bbs for user and AI
-user_stack = 100
-ai_stack = 100
-
-
 #used for dealing hole cards to user and AI
 def hole_cards():
     random_card_1 = random.choice(deck)
@@ -46,7 +39,6 @@ def isSuited(hand):
     else:
         return 'o'
     
-    
 #returns name of hand, eg: J8s AKo
 def name_hand(hand):
     so = isSuited(hand)
@@ -60,6 +52,7 @@ def get_ranking(hand):
     except KeyError:
         return ranking[f"{hand[1].face}{hand[0].face}{so}"]
 
+#returns what stack size is left (Low, Mid, Deep)
 def get_stacksize():
     if (ai_stack < 20):
         return 'low'
@@ -68,32 +61,7 @@ def get_stacksize():
     else:
         return 'deep'
 
-
-#setting blinds
-bb = 'u'
-sb = 'ai'
-
-#dealing cards
-card1, card2 = hole_cards()
-user_cards = [card1,card2]
-card1, card2 = hole_cards()
-ai_cards = [card1,card2]
-
-#printing names of hands
-print(name_hand(user_cards))
-print(name_hand(ai_cards))
-
-print(get_ranking(user_cards))
-print(get_ranking(ai_cards))
-
-#assigns hand ranking to ai hand
-ai_hand_ranking = get_ranking(ai_cards)
-
-pot = 1.5
-user_stack -= 1
-ai_stack -= .5
-
-# Determines preflop action considering stacksize and hand ranking
+#used for when ai is first to act preflop
 def ai_preflop_action_sb(range):
     stacksize = get_stacksize()
     if stacksize == 'low':
@@ -151,16 +119,102 @@ def ai_preflop_action_sb(range):
             else:
                 return 'fold'
 
+def preflop():
+    global deck, user_stack, ai_stack, bb, sb, pot
 
-ai_action = ai_preflop_action_sb(ai_hand_ranking)
-print(ai_action)
+    print(user_stack)
+    print(ai_stack)
 
+    # generate a new deck for each hand
+    deck = generate_deck()
 
-# Ask for user action based on AI action
-if ai_action == 'call':
-    uinp = input('Enter your action (Ch, Ra): ')
-elif ai_action == 'raise':
-    uinp = input('Enter your action (Ca, 3b, Fo): ')
-else:
-    print('restart hand')
+    # Alternate blinds and subtract from stack
+    if bb == 'u':
+        bb = 'ai'
+        sb = 'u'
+        user_stack -= 0.5
+        ai_stack -= 1
+    else:
+        bb = 'u'
+        sb = 'ai'
+        user_stack -= 1
+        ai_stack -= 0.5
+    
+    pot = 1.5
 
+    # Deal hole cards
+    card1, card2 = hole_cards()
+    user_cards = [card1, card2]
+    card1, card2 = hole_cards()
+    ai_cards = [card1, card2]
+
+    # Print names of hands
+    print("You are Dealt:", name_hand(user_cards))
+    print("AI's hand:", name_hand(ai_cards))
+
+    # Get hand rankings
+    user_hand_ranking = get_ranking(user_cards)
+    ai_hand_ranking = get_ranking(ai_cards)
+
+    print("User's hand ranking:", user_hand_ranking)
+    print("AI's hand ranking:", ai_hand_ranking)
+
+    range = ai_hand_ranking
+
+    # 
+    match sb:
+        case 'u':
+            user_action = input('You are first to act (Ca, Ra, Fo): ')
+            match user_action:
+                case 'Ca':
+                    print('flop()')#//////////////
+                    user_stack -= .5                
+                    pot += .5
+                case 'Ra':
+                    print('You raise to 3BB')
+                    user_stack -= 2.5
+                    pot += 2.5
+                    print('ai_preflop_facing_raise()')#/////////////
+                case 'Fo':
+                    ai_stack += pot
+                    preflop()
+        case 'ai':
+            ai_action = ai_preflop_action_sb(ai_hand_ranking)
+            print("AI's action:", ai_action)
+            # Ask for user action based on AI action
+            if ai_action == 'call':
+                user_action = input('Enter your action (Ch, Ra): ')
+                ai_stack -= .5                
+                pot += .5
+                print('flop()')#//////////////
+            elif ai_action == 'raise':
+                print('AI raises to 3BB')
+                ai_stack -= 2.5
+                pot += 2.5
+                user_action = input('Enter your action (Ca, 3b, Fo): ')
+                if user_action == 'Fo':
+                    print('User folds. Restarting hand...')
+                    user_stack += pot
+                    preflop()
+                elif user_action == 'Ca':
+                    user_stack -= .5                
+                    pot += .5
+                    print('flop()')#//////////////
+                else:
+                    print('You 3-bet to 9BB')
+                    user_stack -=8.5
+                    pot += 8.5
+                    print('ai_preflop_facing_3b()')#/////////////
+            else:
+                print('AI folds. Restarting hand...')
+                preflop()
+            
+
+# Initialize the game by declaring initial stack and blinds
+user_stack = 100
+ai_stack = 100
+bb = ''
+sb = ''
+
+# Start the game by calling preflop
+preflop()
