@@ -242,6 +242,7 @@ def preflop():
 
     # Deal hole cards
     card1, card2 = hole_cards()
+    global user_cards
     user_cards = [card1, card2]
     card1, card2 = hole_cards()
     ai_cards = [card1, card2]
@@ -249,7 +250,6 @@ def preflop():
     # Print names of hands
     print("You are Dealt:", name_hand(user_cards))
     print("AI's hand:", name_hand(ai_cards))
-
     # Get hand rankings
     user_hand_ranking = get_ranking(user_cards)
     ai_hand_ranking = get_ranking(ai_cards)
@@ -381,7 +381,7 @@ def preflop():
                 user_action = input('Enter your action (Ca, 3b, Fo): ')
                 if user_action == 'Fo':
                     print('User folds. Restarting hand...')
-                    user_stack += pot
+                    ai_stack += pot
                     preflop()
                 elif user_action == 'Ca':
                     user_stack -= 2                
@@ -408,6 +408,29 @@ def preflop():
                 user_stack += pot
                 preflop()
 
+#returns an array containing three community cards
+def flop_card(deck):
+    flop = random.sample(deck, 3)  # Select 3 random cards from the deck
+    for card in flop:
+        deck.remove(card)  # Remove the selected cards from the deck
+    return flop
+
+#returns unicode symbol of suit name
+def getSymbol(suit): #sym = ['♥', '♦', '♣', '♠']
+    match suit:
+        case 'Hearts':
+            return '♥'
+        case 'Diamonds':
+            return '♦'
+        case 'Spades':
+            return '♠'
+        case 'Clubs':
+            return '♣'      
+
+#returns user hand with face and number
+def user_card(hand):
+    return f"{hand[0].face}{getSymbol(hand[0].suit)}  {hand[1].face}{getSymbol(hand[1].suit)}"
+
 def flop():
     print ('Pre-flop Action Over:')
     print ('------------------------------------------------------------------------------- ')
@@ -415,8 +438,12 @@ def flop():
     print('Your Stack: ' + str(user_stack))
     print('Pot: ' + str(pot))
     print ('------------------------------------------------------------------------------- ')
+    flop = flop_card(deck)
+    print('Flop Comes: ' + ' '.join(f"{card.face}{getSymbol(card.suit)}" for card in flop))# printing flop cards in one line
+    print('Your Cards: ' + user_card(user_cards))
+    print(f"Remaining cards in deck: {len(deck)}")
 
-              
+
 # Initialize the game by declaring initial stack and blinds
 user_stack = 100
 ai_stack = 100
