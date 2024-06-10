@@ -119,6 +119,72 @@ def ai_preflop_action_sb(range):
             else:
                 return 'fold'
 
+def sb_against_bb_call(range):
+    if range < 60:
+        return 'raise'
+    else:
+        return 'check'
+
+
+def ai_facing_preflop_raise(range):
+    stacksize = get_stacksize()
+    cm = .5
+    rm = .15
+    if stacksize == 'low':
+        if 50*cm <= range <= 86*cm:
+            if random.random() < 0.20:
+                return '3bet'
+            elif random.random() < 0.15:
+                return 'fold'
+            else:
+                return 'call'
+        elif range < 30:
+            if random.random() < 0.25:
+                return 'call'
+            else:
+                return 'raise'
+        else:
+            if random.random() < 0.30:
+                return 'call'
+            else:
+                return 'fold'
+    elif stacksize == 'mid':
+        if 45*cm <= range <= 70*cm:
+            if random.random() < 0.25:
+                return '3bet'
+            elif random.random() < 0.10:
+                return 'fold'
+            else:
+                return 'call'
+        elif range < 30:
+            if random.random() < 0.25:
+                return 'call'
+            else:
+                return '3bet'
+        else:
+            if random.random() < 0.10:
+                return 'call'
+            else:
+                return 'fold'
+    else:
+        if 40*cm <= range <= 60*cm:
+            if random.random() < 0.25:
+                return '3bet'
+            elif random.random() < 0.12:
+                return 'fold'
+            else:
+                return 'call'
+        elif range < 10:
+            if random.random() < 0.25:
+                return 'call'
+            else:
+                return '3bet'
+        else:
+            if random.random() < 0.10:
+                return 'call'
+            else:
+                return 'fold'
+    
 def preflop():
     global deck, user_stack, ai_stack, bb, sb, pot
 
@@ -167,14 +233,52 @@ def preflop():
             user_action = input('You are first to act (Ca, Ra, Fo): ')
             match user_action:
                 case 'Ca':
-                    print('flop()')#//////////////
                     user_stack -= .5                
                     pot += .5
+                    ai_action = sb_against_bb_call(range)
+                    match ai_action:
+                        case 'check':
+                            print('flop()')#####################
+                        case 'raise':
+                            user_action = input('Enter your action (Ca, 3b, Fo): ')
+                            if user_action == 'Fo':
+                                print('User folds. Restarting hand...')
+                                user_stack += pot
+                                preflop()
+                            elif user_action == 'Ca':
+                                user_stack -= .5                
+                                pot += .5
+                                print('flop()')#//////////////
+                            else:
+                                print('You 3-bet to 9BB')
+                                user_stack -=8.5
+                                pot += 8.5
+                                print('ai_preflop_facing_3b()')#/////////////
                 case 'Ra':
                     print('You raise to 3BB')
                     user_stack -= 2.5
                     pot += 2.5
-                    print('ai_preflop_facing_raise()')#/////////////
+                    ai_action = ai_facing_preflop_raise(range)
+                    match ai_action:
+                        case 'call':
+                            ai_stack -= 2
+                            pot += 2
+                            print('flop()')##################
+                        case '3bet':
+                            ai_stack -= 8
+                            pot += 8
+                            user_action = input('AI has 3-Bet to 9BB. What will you do (Ca, Fo)')
+                            match user_action:
+                                case 'Ca':
+                                    user_stack -= 6
+                                    pot += 6
+                                    print('flop')###################
+                                case 'Fo':
+                                    ai_stack += pot
+                                    preflop()
+                        case 'fold':
+                            user_stack += pot
+                            preflop()
                 case 'Fo':
                     ai_stack += pot
                     preflop()
@@ -186,7 +290,33 @@ def preflop():
                 user_action = input('Enter your action (Ch, Ra): ')
                 ai_stack -= .5                
                 pot += .5
-                print('flop()')#//////////////
+                match user_action:
+                    case 'Ch':
+                        print('flop()')#########################
+                    case 'Ra':
+                        user_stack -= 2
+                        pot += 2
+                        ai_action = ai_facing_preflop_raise(range)
+                        match ai_action:
+                            case 'call':
+                                ai_stack -= 2
+                                pot += 2
+                                print('flop()')##################
+                            case '3bet':
+                                ai_stack -= 8
+                                pot += 8
+                                user_action = input('AI has 3-Bet to 9BB. What will you do (Ca, Fo)')
+                                match user_action:
+                                    case 'Ca':
+                                        user_stack -= 6
+                                        pot += 6
+                                        print('flop')###################
+                                    case 'Fo':
+                                        ai_stack += pot
+                                        preflop()
+                            case 'fold':
+                                user_stack += pot
+                                preflop()
             elif ai_action == 'raise':
                 print('AI raises to 3BB')
                 ai_stack -= 2.5
