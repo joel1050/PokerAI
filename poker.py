@@ -133,7 +133,7 @@ def ai_facing_preflop_raise(range):
     cm = .5
     rm = .15
     if stacksize == 'low':
-        if 50 <= range <= 86:
+        if 40 <= range <= 120:
             if random.random() < 0.20:
                 return '3bet'
             elif random.random() < 0.15:
@@ -151,7 +151,7 @@ def ai_facing_preflop_raise(range):
             else:
                 return 'fold'
     elif stacksize == 'mid':
-        if 45 <= range <= 70:
+        if 35 <= range <= 100:
             if random.random() < 0.25:
                 return '3bet'
             elif random.random() < 0.10:
@@ -169,7 +169,7 @@ def ai_facing_preflop_raise(range):
             else:
                 return 'fold'
     else:
-        if 40 <= range <= 60:
+        if 30 <= range <= 90:
             if random.random() < 0.25:
                 return '3bet'
             elif random.random() < 0.12:
@@ -280,6 +280,7 @@ def preflop():
                             user_action = input('Enter your action (Ca, 3b, Fo): ')
                             if user_action == 'Fo':
                                 print('User folds. Restarting hand...')
+                                print ('------------------------------------------------------------------------------- ')
                                 user_stack += pot
                                 preflop()
                             elif user_action == 'Ca':
@@ -299,7 +300,8 @@ def preflop():
                                         pot += 6
                                         flop()
                                     case 'fold':
-                                        print('AI Folds')
+                                        print('AI Folds. Restarting hand...')
+                                        print ('------------------------------------------------------------------------------- ')
                                         user_stack += pot
                                         preflop
                 case 'Ra':
@@ -325,19 +327,21 @@ def preflop():
                                     flop()
                                 case 'Fo':
                                     print('You Fold. Restarting Hand...')
+                                    print ('------------------------------------------------------------------------------- ')
                                     ai_stack += pot
                                     preflop()
                         case 'fold':
-                            print('AI Folds')
+                            print('AI Folds. Restarting Hand...')
+                            print ('------------------------------------------------------------------------------- ')
                             user_stack += pot
                             preflop()
                 case 'Fo':
                     print('You Fold. Restarting Hand...')
+                    print ('------------------------------------------------------------------------------- ')
                     ai_stack += pot
                     preflop()
         case 'ai':
             ai_action = ai_preflop_action_sb(ai_hand_ranking)
-            print("AI's action:", ai_action)
             # Ask for user action based on AI action
             if ai_action == 'call':
                 user_action = input('Enter your action (Ch, Ra): ')
@@ -369,11 +373,12 @@ def preflop():
                                         flop()
                                     case 'Fo':
                                         print('You Fold. Restarting Hand...')
+                                        print ('------------------------------------------------------------------------------- ')
                                         ai_stack += pot
                                         preflop()
                             case 'fold':
                                 user_stack += pot
-                                print('AI Folds')
+                                print('AI Folds. Restarting hand...')
                                 preflop()
             elif ai_action == 'raise':
                 print('AI raises to 3BB')
@@ -381,7 +386,8 @@ def preflop():
                 pot += 2.5
                 user_action = input('Enter your action (Ca, 3b, Fo): ')
                 if user_action == 'Fo':
-                    print('User folds. Restarting hand...')
+                    print('You folds. Restarting hand...')
+                    print ('------------------------------------------------------------------------------- ')
                     ai_stack += pot
                     preflop()
                 elif user_action == 'Ca':
@@ -401,11 +407,13 @@ def preflop():
                             pot += 6
                             flop()
                         case 'fold':
-                            print('AI Folds')
+                            print('AI Folds. Restarting hand...')
+                            print ('------------------------------------------------------------------------------- ')
                             user_stack += pot
                             preflop()
             else:
                 print('AI folds. Restarting hand...')
+                print ('------------------------------------------------------------------------------- ')
                 user_stack += pot
                 preflop()
 
@@ -479,18 +487,19 @@ def get_hand(cc, hand):
 
 
 def flop():
+    #infodump
     print ('Pre-flop Action Over:')
     print ('------------------------------------------------------------------------------- ')
     print('AI Stack: ' + str(ai_stack))
     print('Your Stack: ' + str(user_stack))
     print('Pot: ' + str(pot))
     print ('------------------------------------------------------------------------------- ')
+    
+    #dealing flop
     flop = flop_card(deck)
     print('Flop Comes: ' + ' '.join(f"{card.face}{getSymbol(card.suit)}" for card in flop))# printing flop cards in one line
     print(f"Your Cards: {user_card(user_cards)} || AI Cards: {user_card(ai_cards)}")
     get_hand(flop, ai_cards)
-
-
 
 # Initialize the game by declaring initial stack and blinds
 user_stack = 10
