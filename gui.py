@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 import random
-import hand_rank2  # Assuming hand_rank2 is a module that contains hand rankings
+from handranks import hand_rank2  # Assuming hand_rank2 is a module that contains hand rankings
 
 ranking = hand_rank2.ranking
 face_rank = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, 'T': 10, 'J': 11, 'Q': 12, 'K': 13, 'A': 14}

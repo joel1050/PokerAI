@@ -554,10 +554,12 @@ def sf_check(cards):
         if checkStraight((sorted(ranklist))):
             return 'Straight'
 
-        
-
-
-    
+def highest_value_face(cards):
+    # Sort the cards based on their face rank in descending order
+    cards.sort(key=lambda card: face_rank[card.face], reverse=True)
+    # Return the face of the highest value card
+    return cards[0].face
+       
 #checks for hand if present on board, and if there is a hand when combining AI hole and community cards, checks for draws as well
 def get_hand(cc, hand):
     #checking for hands on board
@@ -571,7 +573,8 @@ def get_hand(cc, hand):
             print(f"AI Hand: {sf_check(cc + hand)}")
         else:
             print(f"AI Hand: {pair_check(cc + hand)}")
-
+    else:
+        print(f"AI Hand: {highest_value_face(cc + hand)} High")
 
 def flop():
     #infodump
