@@ -1,15 +1,15 @@
 import random
-import hand_rank
-import hand_rank2
+from handranks import hand_rank
+from handranks import hand_rank2
 
 ranking = hand_rank2.ranking
-
+face_rank = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, 'T': 10, 'J': 11, 'Q': 12, 'K': 13, 'A': 14}
 class Card:
     def __init__(self, face, suit):
         self.face = face
         self.suit = suit
 
-#generates deck of 
+#generates deck of 52 cards
 def generate_deck():
     faces = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A']
     suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
@@ -42,8 +42,16 @@ def isSuited(hand):
     
 #returns name of hand, eg: J8s AKo
 def name_hand(hand):
-    so = isSuited(hand)
-    return f"{hand[0].face}{hand[1].face}{so}"
+    # Ensure the higher face value is first
+    if face_rank[hand[0].face] < face_rank[hand[1].face]:
+        hand = [hand[1], hand[0]]
+    
+    # Check if it's a pocket pair
+    if hand[0].face == hand[1].face:
+        return f"{hand[0].face}{hand[1].face}"
+    else:
+        so = isSuited(hand)
+        return f"{hand[0].face}{hand[1].face}{so}"
 
 #returns value from ranking dict
 def get_ranking(hand):
@@ -192,7 +200,7 @@ def ai_preflop_facing_3b(range):
     stacksize = get_stacksize()
     match stacksize:
         case 'low':
-            if range < 40:
+            if range < 60:
                 return 'call'
             else:
                 if random.random() < .2:
@@ -200,7 +208,7 @@ def ai_preflop_facing_3b(range):
                 else:
                     return 'fold'       
         case 'mid':
-                if range < 35:
+                if range < 50:
                     return 'call'
                 else:
                     if random.random() < .2:
@@ -208,7 +216,7 @@ def ai_preflop_facing_3b(range):
                     else:
                         return 'fold'  
         case 'deep':
-                if range < 30:
+                if range < 40:
                     return 'call'
                 else:
                     if random.random() < .15:
@@ -281,7 +289,7 @@ def preflop():
                             if user_action == 'Fo':
                                 print('User folds. Restarting hand...')
                                 print ('------------------------------------------------------------------------------- ')
-                                user_stack += pot
+                                ai_stack += pot
                                 preflop()
                             elif user_action == 'Ca':
                                 user_stack -= .5                
@@ -344,6 +352,7 @@ def preflop():
             ai_action = ai_preflop_action_sb(ai_hand_ranking)
             # Ask for user action based on AI action
             if ai_action == 'call':
+                print('AI calls')
                 user_action = input('Enter your action (Ch, Ra): ')
                 ai_stack -= .5                
                 pot += .5
@@ -438,6 +447,10 @@ def getSymbol(suit): #sym = ['♥', '♦', '♣', '♠']
 
 #returns user hand with face and number
 def user_card(hand):
+    # Ensure the higher face value is first
+    if face_rank[hand[0].face] < face_rank[hand[1].face]:
+        hand = [hand[1], hand[0]]
+    
     return f"{hand[0].face}{getSymbol(hand[0].suit)}  {hand[1].face}{getSymbol(hand[1].suit)}"
 
 #returns whether there is a pair, two pair, three of a kind, full house or four of a kind in given list of cards, if nothing, returns false
@@ -502,8 +515,8 @@ def flop():
     get_hand(flop, ai_cards)
 
 # Initialize the game by declaring initial stack and blinds
-user_stack = 10
-ai_stack = 10
+user_stack = 100
+ai_stack = 100
 bb = ''
 sb = ''
 
