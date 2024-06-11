@@ -490,13 +490,87 @@ def pair_check(cards):
     else:
         return False #works
 
+def checkFlush(suitlistt):
+    class flushacc:
+        def __init__(self):
+            self.suit = ''
+            self.cc = 0
+
+    acc = flushacc()
+    
+    for suit in suitlistt:
+        if acc.cc == 5:
+            return True
+        elif acc.cc == 0:
+            acc.suit = suit
+            acc.cc += 1
+        else:
+            if acc.suit == suit:
+                acc.cc += 1
+            else:
+                acc.cc = 1
+                acc.suit = suit
+    return acc.cc == 5
+      
+def checkStraight(valList):
+    class stracc:
+        def __init__(self):
+            self.cc = 0
+            self.num = None
+
+    acc = stracc()
+    
+    for value in valList:
+        if acc.cc == 5:
+            return True
+        if acc.num is None or acc.num == value - 1:
+            acc.cc += 1
+            acc.num = value
+        elif acc.num == value:
+            # Skip the same number
+            continue
+        else:
+            acc.cc = 1
+            acc.num = value
+    
+    return acc.cc == 5
+            
+
+
+def sf_check(cards):
+    if len(cards) < 5:
+        return
+    else:
+        #checking for flush
+        suitlist = []
+        for card in cards:
+            suitlist.append(card.suit)
+        if checkFlush(sorted(suitlist)):
+            return 'Flush'
+        #checking for straight
+        ranklist = []
+        for card in cards:
+            ranklist.append(face_rank[card.face])
+        if checkStraight((sorted(ranklist))):
+            return 'Straight'
+
+        
+
+
+    
 #checks for hand if present on board, and if there is a hand when combining AI hole and community cards, checks for draws as well
 def get_hand(cc, hand):
     #checking for hands on board
     if pair_check(cc) != False:
-        print(f"There is a {pair_check(cc)} on the board")
+        if (pair_check(cc) != 'full house') and (pair_check(cc) != 'four of a kind') and (sf_check(cc)):
+            print(f"There is a {sf_check(cc)} on the board")
+        else:
+            print(f"There is a {pair_check(cc)} on the board")
     if pair_check(cc + hand) != False:
-        print(f"AI Hand: {pair_check(cc + hand)}")
+        if (pair_check(cc + hand) != 'full house') and (pair_check(cc + hand) != 'four of a kind') and (sf_check(cc + hand)):
+            print(f"AI Hand: {sf_check(cc + hand)}")
+        else:
+            print(f"AI Hand: {pair_check(cc + hand)}")
 
 
 def flop():
@@ -520,6 +594,5 @@ ai_stack = 100
 bb = ''
 sb = ''
 
-#testing pair_check: print(pair_check([Card('2','Hearts'),Card('2','Hearts'),Card('2','Spades'), Card('5','Spades'), Card('2','Spades')]))
 # Start the game by calling preflop
 preflop()
