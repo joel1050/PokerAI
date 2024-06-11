@@ -1,7 +1,8 @@
 import random
 import hand_rank
+import hand_rank2
 
-ranking = hand_rank.ranking
+ranking = hand_rank2.ranking
 
 class Card:
     def __init__(self, face, suit):
@@ -65,14 +66,14 @@ def get_stacksize():
 def ai_preflop_action_sb(range):
     stacksize = get_stacksize()
     if stacksize == 'low':
-        if 50 <= range <= 86:
+        if 120 <= range <= 150:
             if random.random() < 0.20:
                 return 'raise'
             elif random.random() < 0.15:
                 return 'fold'
             else:
                 return 'call'
-        elif range < 50:
+        elif range < 120:
             if random.random() < 0.25:
                 return 'call'
             else:
@@ -83,14 +84,14 @@ def ai_preflop_action_sb(range):
             else:
                 return 'fold'
     elif stacksize == 'mid':
-        if 45 <= range <= 70:
+        if 100 <= range <= 136:
             if random.random() < 0.25:
                 return 'raise'
             elif random.random() < 0.10:
                 return 'fold'
             else:
                 return 'call'
-        elif range < 45:
+        elif range < 100:
             if random.random() < 0.25:
                 return 'call'
             else:
@@ -101,14 +102,14 @@ def ai_preflop_action_sb(range):
             else:
                 return 'fold'
     else:
-        if 40 <= range <= 60:
+        if 90 <= range <= 120:
             if random.random() < 0.25:
                 return 'raise'
             elif random.random() < 0.12:
                 return 'fold'
             else:
                 return 'call'
-        elif range < 40:
+        elif range < 90:
             if random.random() < 0.25:
                 return 'call'
             else:
@@ -121,7 +122,7 @@ def ai_preflop_action_sb(range):
 
 #used for when ai is bb and faces a call
 def sb_against_bb_call(range):
-    if range < 60:
+    if range < 120:
         return 'raise'
     else:
         return 'check'
@@ -132,7 +133,7 @@ def ai_facing_preflop_raise(range):
     cm = .5
     rm = .15
     if stacksize == 'low':
-        if 50*cm <= range <= 86*cm:
+        if 50 <= range <= 86:
             if random.random() < 0.20:
                 return '3bet'
             elif random.random() < 0.15:
@@ -150,14 +151,14 @@ def ai_facing_preflop_raise(range):
             else:
                 return 'fold'
     elif stacksize == 'mid':
-        if 45*cm <= range <= 70*cm:
+        if 45 <= range <= 70:
             if random.random() < 0.25:
                 return '3bet'
             elif random.random() < 0.10:
                 return 'fold'
             else:
                 return 'call'
-        elif range < 30:
+        elif range < 35:
             if random.random() < 0.25:
                 return 'call'
             else:
@@ -168,14 +169,14 @@ def ai_facing_preflop_raise(range):
             else:
                 return 'fold'
     else:
-        if 40*cm <= range <= 60*cm:
+        if 40 <= range <= 60:
             if random.random() < 0.25:
                 return '3bet'
             elif random.random() < 0.12:
                 return 'fold'
             else:
                 return 'call'
-        elif range < 25:
+        elif range < 30:
             if random.random() < 0.25:
                 return 'call'
             else:
@@ -199,7 +200,7 @@ def ai_preflop_facing_3b(range):
                 else:
                     return 'fold'       
         case 'mid':
-                if range < 30:
+                if range < 35:
                     return 'call'
                 else:
                     if random.random() < .2:
@@ -207,7 +208,7 @@ def ai_preflop_facing_3b(range):
                     else:
                         return 'fold'  
         case 'deep':
-                if range < 25:
+                if range < 30:
                     return 'call'
                 else:
                     if random.random() < .15:
@@ -441,7 +442,6 @@ def flop():
     flop = flop_card(deck)
     print('Flop Comes: ' + ' '.join(f"{card.face}{getSymbol(card.suit)}" for card in flop))# printing flop cards in one line
     print('Your Cards: ' + user_card(user_cards))
-    print(f"Remaining cards in deck: {len(deck)}")
 
 
 # Initialize the game by declaring initial stack and blinds
