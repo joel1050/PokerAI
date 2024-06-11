@@ -243,7 +243,7 @@ def preflop():
 
     # Deal hole cards
     card1, card2 = hole_cards()
-    global user_cards
+    global user_cards, ai_cards
     user_cards = [card1, card2]
     card1, card2 = hole_cards()
     ai_cards = [card1, card2]
@@ -432,6 +432,52 @@ def getSymbol(suit): #sym = ['♥', '♦', '♣', '♠']
 def user_card(hand):
     return f"{hand[0].face}{getSymbol(hand[0].suit)}  {hand[1].face}{getSymbol(hand[1].suit)}"
 
+#returns whether there is a pair, two pair, three of a kind, full house or four of a kind in given list of cards, if nothing, returns false
+def pair_check(cards):
+    from collections import Counter
+    # Extract face values from Card objects
+    faces = [card.face for card in cards]
+    
+    # Count the occurrences of each face value
+    face_counts = Counter(faces)
+    
+    # Initialize the pair and three-of-a-kind counters
+    pair_count = 0
+    toak = 0
+    foak = 0
+    
+    # Check the counts
+    for count in face_counts.values():
+        if count == 2:
+            pair_count += 1
+        elif count == 3:
+            toak += 1
+        elif count == 4:
+            foak += 1
+    
+    # Determine the result based on the counts
+    if foak == 1:
+        return 'four of a kind'
+    elif (toak == 1) & (pair_count == 1):
+        return 'full house'
+    elif toak == 1:
+        return 'three of a kind' #works
+    elif pair_count == 2:
+        return 'two pair' #works
+    elif pair_count == 1:
+        return 'one pair' #works 
+    else:
+        return False #works
+
+#checks for hand if present on board, and if there is a hand when combining AI hole and community cards, checks for draws as well
+def get_hand(cc, hand):
+    #checking for hands on board
+    if pair_check(cc) != False:
+        print(f"There is a {pair_check(cc)} on the board")
+    if pair_check(cc + hand) != False:
+        print(f"AI Hand: {pair_check(cc + hand)}")
+
+
 def flop():
     print ('Pre-flop Action Over:')
     print ('------------------------------------------------------------------------------- ')
@@ -441,14 +487,17 @@ def flop():
     print ('------------------------------------------------------------------------------- ')
     flop = flop_card(deck)
     print('Flop Comes: ' + ' '.join(f"{card.face}{getSymbol(card.suit)}" for card in flop))# printing flop cards in one line
-    print('Your Cards: ' + user_card(user_cards))
+    print(f"Your Cards: {user_card(user_cards)} || AI Cards: {user_card(ai_cards)}")
+    get_hand(flop, ai_cards)
+
 
 
 # Initialize the game by declaring initial stack and blinds
-user_stack = 100
-ai_stack = 100
+user_stack = 10
+ai_stack = 10
 bb = ''
 sb = ''
 
+#testing pair_check: print(pair_check([Card('2','Hearts'),Card('2','Hearts'),Card('2','Spades'), Card('5','Spades'), Card('2','Spades')]))
 # Start the game by calling preflop
 preflop()
