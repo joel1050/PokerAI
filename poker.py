@@ -74,14 +74,7 @@ def get_stacksize():
 def ai_preflop_action_sb(range):
     stacksize = get_stacksize()
     if stacksize == 'low':
-        if 120 <= range <= 150:
-            if random.random() < 0.20:
-                return 'raise'
-            elif random.random() < 0.15:
-                return 'fold'
-            else:
-                return 'call'
-        elif range < 120:
+        if range < 144:
             if random.random() < 0.25:
                 return 'call'
             else:
@@ -92,14 +85,7 @@ def ai_preflop_action_sb(range):
             else:
                 return 'fold'
     elif stacksize == 'mid':
-        if 100 <= range <= 136:
-            if random.random() < 0.25:
-                return 'raise'
-            elif random.random() < 0.10:
-                return 'fold'
-            else:
-                return 'call'
-        elif range < 100:
+        if range < 130:
             if random.random() < 0.25:
                 return 'call'
             else:
@@ -110,14 +96,7 @@ def ai_preflop_action_sb(range):
             else:
                 return 'fold'
     else:
-        if 90 <= range <= 120:
-            if random.random() < 0.25:
-                return 'raise'
-            elif random.random() < 0.12:
-                return 'fold'
-            else:
-                return 'call'
-        elif range < 90:
+        if range < 120:
             if random.random() < 0.25:
                 return 'call'
             else:
@@ -141,14 +120,14 @@ def ai_facing_preflop_raise(range):
     cm = .5
     rm = .15
     if stacksize == 'low':
-        if 40 <= range <= 120:
+        if 100 <= range <= 140:
             if random.random() < 0.20:
                 return '3bet'
             elif random.random() < 0.15:
                 return 'fold'
             else:
                 return 'call'
-        elif range < 40:
+        elif range < 100:
             if random.random() < 0.25:
                 return 'call'
             else:
@@ -159,14 +138,14 @@ def ai_facing_preflop_raise(range):
             else:
                 return 'fold'
     elif stacksize == 'mid':
-        if 35 <= range <= 100:
+        if 90 <= range <= 130:
             if random.random() < 0.25:
                 return '3bet'
             elif random.random() < 0.10:
                 return 'fold'
             else:
                 return 'call'
-        elif range < 35:
+        elif range < 90:
             if random.random() < 0.25:
                 return 'call'
             else:
@@ -177,14 +156,14 @@ def ai_facing_preflop_raise(range):
             else:
                 return 'fold'
     else:
-        if 30 <= range <= 90:
+        if 80 <= range <= 120:
             if random.random() < 0.25:
                 return '3bet'
             elif random.random() < 0.12:
                 return 'fold'
             else:
                 return 'call'
-        elif range < 30:
+        elif range < 80:
             if random.random() < 0.25:
                 return 'call'
             else:
@@ -200,7 +179,7 @@ def ai_preflop_facing_3b(range):
     stacksize = get_stacksize()
     match stacksize:
         case 'low':
-            if range < 60:
+            if range < 100:
                 return 'call'
             else:
                 if random.random() < .2:
@@ -208,7 +187,7 @@ def ai_preflop_facing_3b(range):
                 else:
                     return 'fold'       
         case 'mid':
-                if range < 50:
+                if range < 90:
                     return 'call'
                 else:
                     if random.random() < .2:
@@ -216,7 +195,7 @@ def ai_preflop_facing_3b(range):
                     else:
                         return 'fold'  
         case 'deep':
-                if range < 40:
+                if range < 80:
                     return 'call'
                 else:
                     if random.random() < .15:
@@ -535,8 +514,6 @@ def checkStraight(valList):
     
     return acc.cc == 5
             
-
-
 def sf_check(cards):
     if len(cards) < 5:
         return
