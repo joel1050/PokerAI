@@ -20,7 +20,7 @@ A Heads-Up poker bot written in Python, which aims to replicate human-like play 
 
 1. Clone the repository
 ```bash 
-git clone https://github.com/yourusername/poker-game.git
+git clone https://github.com/joel1050/PokerAI
 ```
 
 2. Navigate to the project-directory
