@@ -43,4 +43,4 @@ Input is received via clicking buttons with the respective decision.
 
 # Contributing
 
-Any performance increase or bugfix will be gladly welcomed.
+Any contributions are glady welcomed.
