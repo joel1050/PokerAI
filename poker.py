@@ -284,7 +284,7 @@ class Game:
                         match ai_action:
                             case 'check':
                                 print('AI Checks')
-                                flop()
+                                Game.flop()
                             case 'raise':
                                 print('AI Raises to 3BB')
                                 ai_stack -= 2
@@ -299,7 +299,7 @@ class Game:
                                     user_stack -= .5                
                                     pot += .5
                                     print('You call')
-                                    flop()
+                                    Game.flop()
                                 else:
                                     print('You 3-bet to 9BB')
                                     user_stack -=8.5
@@ -310,12 +310,12 @@ class Game:
                                             print('AI Calls')
                                             ai_stack -= 6
                                             pot += 6
-                                            flop()
+                                            Game.flop()
                                         case 'fold':
                                             print('AI Folds. Restarting hand...')
                                             print ('------------------------------------------------------------------------------- ')
                                             user_stack += pot
-                                            preflop
+                                            Game.preflop()
                     case 'Ra':
                         print('You raise to 3BB')
                         user_stack -= 2.5
@@ -326,7 +326,7 @@ class Game:
                                 ai_stack -= 2
                                 pot += 2
                                 print('AI Calls')
-                                flop()
+                                Game.flop()
                             case '3bet':
                                 ai_stack -= 8
                                 pot += 8
@@ -336,7 +336,7 @@ class Game:
                                         user_stack -= 6
                                         pot += 6
                                         print('You call')
-                                        flop()
+                                        Game.flop()
                                     case 'Fo':
                                         print('You Fold. Restarting Hand...')
                                         print ('------------------------------------------------------------------------------- ')
@@ -363,7 +363,7 @@ class Game:
                     match user_action:
                         case 'Ch':
                             print('You Check')
-                            flop()
+                            Game.flop()
                         case 'Ra':
                             user_stack -= 2
                             pot += 2
@@ -373,7 +373,7 @@ class Game:
                                     ai_stack -= 2
                                     pot += 2
                                     print('AI Calls')
-                                    flop()
+                                    Game.flop()
                                 case '3bet':
                                     ai_stack -= 8
                                     pot += 8
@@ -383,7 +383,7 @@ class Game:
                                             user_stack -= 6
                                             pot += 6
                                             print('You call')
-                                            flop()
+                                            Game.flop()
                                         case 'Fo':
                                             print('You Fold. Restarting Hand...')
                                             print ('------------------------------------------------------------------------------- ')
@@ -407,7 +407,7 @@ class Game:
                         user_stack -= 2                
                         pot += 2
                         print('You call')
-                        flop()
+                        Game.flop()
                     else:
                         print('You 3-bet to 9BB')
                         user_stack -=8.5
@@ -418,7 +418,7 @@ class Game:
                                 print('AI Calls')
                                 ai_stack -= 6
                                 pot += 6
-                                flop()
+                                Game.flop()
                             case 'fold':
                                 print('AI Folds. Restarting hand...')
                                 print ('------------------------------------------------------------------------------- ')
@@ -450,46 +450,46 @@ class Game:
         print(f"AI Hand: {Eval.get_hand(flop + ai_cards)}")
 
 class Eval: 
-    #checks for hand if present on board, and if there is a hand when combining AI hole and community cards, checks for draws as well
-    def get_hand(cards):
-        #returns whether there is a pair, two pair, three of a kind, full house or four of a kind in given list of cards, if nothing, returns false
-        def pair_check(cards):
-            from collections import Counter
-            # Extract face values from Card objects
-            faces = [card.face for card in cards]
-            
-            # Count the occurrences of each face value
-            face_counts = Counter(faces)
-            
-            # Initialize the pair and three-of-a-kind counters
-            pair_count = 0
-            toak = 0
-            foak = 0
-            
-            # Check the counts
-            for count in face_counts.values():
-                if count == 2:
-                    pair_count += 1
-                elif count == 3:
-                    toak += 1
-                elif count == 4:
-                    foak += 1
-            
-            # Determine the result based on the counts
-            if foak == 1:
-                return 'four of a kind'
-            elif (toak == 1) & (pair_count == 1):
-                return 'full house'
-            elif toak == 1:
-                return 'three of a kind' #works
-            elif pair_count == 2:
-                return 'two pair' #works
-            elif pair_count == 1:
-                return 'one pair' #works 
-            else:
-                return False #works
-
+    #returns whether there is a pair, two pair, three of a kind, full house or four of a kind in given list of cards, if nothing, returns false
+    def pair_check(cards):
+        from collections import Counter
+        # Extract face values from Card objects
+        faces = [card.face for card in cards]
+        
+        # Count the occurrences of each face value
+        face_counts = Counter(faces)
+        
+        # Initialize the pair and three-of-a-kind counters
+        pair_count = 0
+        toak = 0
+        foak = 0
+        
+        # Check the counts
+        for count in face_counts.values():
+            if count == 2:
+                pair_count += 1
+            elif count == 3:
+                toak += 1
+            elif count == 4:
+                foak += 1
+        
+        # Determine the result based on the counts
+        if foak == 1:
+            return 'four of a kind'
+        elif (toak == 1) & (pair_count == 1):
+            return 'full house'
+        elif toak == 1:
+            return 'three of a kind' #works
+        elif pair_count == 2:
+            return 'two pair' #works
+        elif pair_count == 1:
+            return 'one pair' #works 
+        else:
+            return False #works
+                
+    def sf_check(cards):
         def checkFlush(suitlistt):
+
             class flushacc:
                 def __init__(self):
                     self.suit = ''
@@ -510,7 +510,7 @@ class Eval:
                         acc.cc = 1
                         acc.suit = suit
             return acc.cc == 5
-            
+        
         def checkStraight(valList):
             class stracc:
                 def __init__(self):
@@ -533,43 +533,45 @@ class Eval:
                     acc.num = value
             
             return acc.cc == 5
-                    
-        def sf_check(cards):
-            if len(cards) < 5:
-                return
-            else:
-                #checking for flush
-                suitlist = []
-                for card in cards:
-                    suitlist.append(card.suit)
-                if checkFlush(sorted(suitlist)):
-                    return 'flush'
-                #checking for straight
-                ranklist = []
-                for card in cards:
-                    ranklist.append(Card.face_rank[card.face])
-                if checkStraight((sorted(ranklist))):
-                    return 'straight'
-
-        def highest_value_face(cards):
-            # Sort the cards based on their face rank in descending order
-            cards.sort(key=lambda card: Card.face_rank[card.face], reverse=True)
-            # Return the face of the highest value card
-            return f"{cards[0].face} high"
-
-        if pair_check(cards) != False:
-            if (pair_check(cards) != 'full house') and (pair_check(cards) != 'four of a kind') and (sf_check(cards)):
-                return sf_check(cards)
-            else:
-                return pair_check(cards)
+        
+        if len(cards) < 5:
+            return
         else:
-            return highest_value_face(cards)
+            #checking for flush
+            suitlist = []
+            for card in cards:
+                suitlist.append(card.suit)
+            if checkFlush(sorted(suitlist)):
+                return 'flush'
+            #checking for straight
+            ranklist = []
+            for card in cards:
+                ranklist.append(Card.face_rank[card.face])
+            if checkStraight((sorted(ranklist))):
+                return 'straight'
+
+    def highest_value_face(cards):
+        # Sort the cards based on their face rank in descending order
+        cards.sort(key=lambda card: Card.face_rank[card.face], reverse=True)
+        # Return the face of the highest value card
+        return f"{cards[0].face} high"
+
+    #checks for hand if present on board, and if there is a hand when combining AI hole and community cards, checks for draws as well
+    def get_hand(cards):
+        if Eval.pair_check(cards) != False:
+            if (Eval.pair_check(cards) != 'full house') and (Eval.pair_check(cards) != 'four of a kind') and (Eval.sf_check(cards)):
+                return Eval.sf_check(cards)
+            else:
+                return Eval.pair_check(cards)
+        else:
+            return Eval.highest_value_face(cards)
 
 # Initialize the game by declaring initial stack and blinds
 user_stack = 100
 ai_stack = 100
 bb = ''
 sb = ''
+
 
 # Start the game by calling preflop
 Game.preflop()
