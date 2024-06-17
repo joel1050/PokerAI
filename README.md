@@ -8,6 +8,7 @@ A Heads-Up poker bot written in Python, which aims to replicate human-like play 
  - Emulates GTO preflop play, which changes according to stack-size.
  - Has randomization to induce variability and emulate human-like play.
  - Evaluates hand using hand rankings from high card to full house.
+ - Can calculate all outs for a given hand.
 
 # In Develelopment
  - Calculating equity for a given hand and community cards by evaluating draws and finding their outs.
