@@ -8,6 +8,17 @@ class Card:
         self.face = face
         self.suit = suit
     
+    def __repr__(self): #returns string repr of object
+        return f"Card({self.face}, {self.suit})"
+    
+    def __eq__(self, other): #define how the == operator works for the object
+        if isinstance(other, Card):
+            return self.face == other.face and self.suit == other.suit
+        return False
+    
+    def __hash__(self): 
+        return hash((self.face, self.suit))
+    
     #returns unicode symbol of suit name
     def getSymbol(suit): #sym = ['♥', '♦', '♣', '♠']
         match suit:
@@ -18,7 +29,12 @@ class Card:
             case 's':
                 return '♠'
             case 'c':
-                return '♣'   
+                return '♣'  
+             
+    #returns user card with face and number
+    def user_card(card):
+        # Ensure the higher face value is first
+        return f"{card.face}{Card.getSymbol(card.suit)}"
 
     face_rank = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, 'T': 10, 'J': 11, 'Q': 12, 'K': 13, 'A': 14}
 
@@ -28,7 +44,7 @@ class Deck:
         faces = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A']
         suits = ['h', 'd', 'c', 's']  
         og_deck = [Card(face, suit) for suit in suits for face in faces]
-        random.shuffle(og_deck)  # Shuffle the deck in place
+        #random.shuffle(og_deck)  # Shuffle the deck in place
         return og_deck  # Return the shuffled deck
 
     #chooses two random cards and deals them
@@ -78,7 +94,7 @@ class Hand: #a hand is defined as two cards held by the player
             return ranking[f"{hand[1].face}{hand[0].face}{so}"]
     
     #returns user hand with face and number
-    def user_card(hand):
+    def user_hand(hand):
         # Ensure the higher face value is first
         if Card.face_rank[hand[0].face] < Card.face_rank[hand[1].face]:
             hand = [hand[1], hand[0]]
@@ -442,15 +458,21 @@ class Game:
         flop = Deck.deal_card(deck,3)
 
         print('Flop Comes: ' + ' '.join(f"{card.face}{Card.getSymbol(card.suit)}" for card in flop))# printing flop cards in one line
-        print(f"Your Cards: {Hand.user_card(user_cards)} || AI Cards: {Hand.user_card(ai_cards)}")
+        print(f"Your Cards: {Hand.user_hand(user_cards)} || AI Cards: {Hand.user_hand(ai_cards)}")
 
-        if not Eval.get_hand(flop).endswith('high'):
+        if not Eval.get_hand(flop) == False:
             print(f"There is an {Eval.get_hand(flop)} on the board")
         
-        print(f"AI Hand: {Eval.get_hand(flop + ai_cards)}")
+        if not Eval.get_hand(flop + ai_cards) == False:
+            print(f"AI Hand: {Eval.get_hand(flop + ai_cards)}")
+        else:
+            Eval.highest_value_face(ai_cards)
+        
+        print(f"Outs: {Eval.get_outs(flop + ai_cards)}")
 
 class Eval: 
     #returns whether there is a pair, two pair, three of a kind, full house or four of a kind in given list of cards, if nothing, returns false
+    hand_ranking = {'high card': 0, 'one pair': 1, 'two pair': 2, 'three of a kind': 3, 'straight': 4, 'flush': 5, 'full house': 6, 'four of a kind': 7}
     def pair_check(cards):
         from collections import Counter
         # Extract face values from Card objects
@@ -488,67 +510,36 @@ class Eval:
             return False #works
                 
     def sf_check(cards):
-        def checkFlush(suitlistt):
-
-            class flushacc:
-                def __init__(self):
-                    self.suit = ''
-                    self.cc = 0
-
-            acc = flushacc()
-            
-            for suit in suitlistt:
-                if acc.cc == 5:
+        def check_flush(suits):
+            from collections import Counter
+            suit_counts = Counter(suits)
+            for count in suit_counts.values():
+                if count >= 5:
                     return True
-                elif acc.cc == 0:
-                    acc.suit = suit
-                    acc.cc += 1
-                else:
-                    if acc.suit == suit:
-                        acc.cc += 1
-                    else:
-                        acc.cc = 1
-                        acc.suit = suit
-            return acc.cc == 5
+            return False
         
-        def checkStraight(valList):
-            class stracc:
-                def __init__(self):
-                    self.cc = 0
-                    self.num = None
-
-            acc = stracc()
-            
-            for value in valList:
-                if acc.cc == 5:
+        def check_straight(ranks):
+            ranks = sorted(set(ranks))
+            if len(ranks) < 5:
+                return False
+            for i in range(len(ranks) - 4):
+                if ranks[i+4] - ranks[i] == 4:
                     return True
-                if acc.num is None or acc.num == value - 1:
-                    acc.cc += 1
-                    acc.num = value
-                elif acc.num == value:
-                    # Skip the same number
-                    continue
-                else:
-                    acc.cc = 1
-                    acc.num = value
-            
-            return acc.cc == 5
-        
+            if set([14, 2, 3, 4, 5]).issubset(ranks):
+                return True
+            return False
+
         if len(cards) < 5:
-            return
-        else:
-            #checking for flush
-            suitlist = []
-            for card in cards:
-                suitlist.append(card.suit)
-            if checkFlush(sorted(suitlist)):
-                return 'flush'
-            #checking for straight
-            ranklist = []
-            for card in cards:
-                ranklist.append(Card.face_rank[card.face])
-            if checkStraight((sorted(ranklist))):
-                return 'straight'
+            return False
+
+        suits = [card.suit for card in cards]
+        ranks = [Card.face_rank[card.face] for card in cards]
+        
+        if check_flush(suits):
+            return 'flush'
+        elif check_straight(ranks):
+            return 'straight'
+        return False
 
     def highest_value_face(cards):
         # Sort the cards based on their face rank in descending order
@@ -558,13 +549,55 @@ class Eval:
 
     #checks for hand if present on board, and if there is a hand when combining AI hole and community cards, checks for draws as well
     def get_hand(cards):
-        if Eval.pair_check(cards) != False:
-            if (Eval.pair_check(cards) != 'full house') and (Eval.pair_check(cards) != 'four of a kind') and (Eval.sf_check(cards)):
-                return Eval.sf_check(cards)
-            else:
-                return Eval.pair_check(cards)
-        else:
-            return Eval.highest_value_face(cards)
+        # First, check for full house and four of a kind
+        pair_result = Eval.pair_check(cards)
+        if pair_result in ['four of a kind', 'full house']:
+            return pair_result
+        
+        # If no full house or four of a kind, check for flushes and straights
+        sf_result = Eval.sf_check(cards)
+        if sf_result:
+            return sf_result
+        
+        # If no flush or straight, return the result of pair check
+        if pair_result:
+            return pair_result
+        
+        return False
+
+    class Outs:
+        def __init__(self, hand_type, outs):
+            self.hand_type = hand_type 
+            self.outs = outs
+        def __repr__(self):
+            output = [Card.user_card(card) for card in self.outs]
+            return f"{self.hand_type},{output})"
+
+    def get_outs(cards):
+        # Generate the full deck
+        deck = Deck.generate_deck()
+        #finds current hand of given cards and sets them to high card if given false
+        current_hand = Eval.get_hand(cards)
+        if current_hand == False:
+            current_hand == 'high card'
+        # Remove all input elements from the deck
+        deck = [card for card in deck if card not in cards]
+        outs_dict = {}
+        for card in deck:
+            # Create a new list that includes the current card without modifying the original cards list
+            new_hand = cards + [card]
+            # Get the hand type
+            hand_type = Eval.get_hand(new_hand)
+            #checks if there is a returned hand, the hand_type is not the same as without the added card, and the the resulting hand type is of greater value than the current hand of the cards without the added card
+            if hand_type and hand_type != current_hand and Eval.hand_ranking[current_hand] < Eval.hand_ranking[hand_type]:
+                if hand_type not in outs_dict:
+                    outs_dict[hand_type] = []
+                outs_dict[hand_type].append(card)
+
+        # Convert the dictionary to a list of Outs objects
+        outs = [Eval.Outs(hand_type, cards) for hand_type, cards in outs_dict.items()]
+        
+        return outs
 
 # Initialize the game by declaring initial stack and blinds
 user_stack = 100
@@ -572,6 +605,7 @@ ai_stack = 100
 bb = ''
 sb = ''
 
+#for testing: print(Eval.get_outs([Card('A','s'), Card('A','s'), Card('A','h'), Card('4','s'), Card('4','s'), Card('3','s') ]))
 
 # Start the game by calling preflop
 Game.preflop()
