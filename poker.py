@@ -1,4 +1,5 @@
 import random
+from itertools import combinations
 from handranks import hand_rank2
 
 ranking = hand_rank2.ranking
@@ -61,6 +62,11 @@ class Deck:
         for card in flop:
             deck.remove(card)  # Remove the selected cards from the deck
         return flop
+    
+    def generate_hand_combinations():
+        deck = Deck.generate_deck()
+        # Generate all possible combinations of 2 cards from the deck
+        return [list(combo) for combo in combinations(deck, 2)]
     
 class Hand: #a hand is defined as two cards held by the player
     #returns s if hand is suited, returns o of hand is offsuit
@@ -475,6 +481,7 @@ class Game:
         outs, outscount = Eval.get_outs(flop + ai_cards)
         print(f"Outs: {outs}")
         print(f"{Eval.get_equity(outscount, 2) * 100}% Equity")
+        print(Eval.killer_hands(ai_cards, flop))
 
 
 class Eval: 
@@ -570,7 +577,7 @@ class Eval:
         if pair_result:
             return pair_result
         
-        return False
+        return 'high card'
 
     class Outs:
         def __init__(self, hand_type, outs):
@@ -610,6 +617,16 @@ class Eval:
     
     def get_equity(outcount, numcards): #returns equity using 4-2 rule when number of outs and number of cards left is input
         return (outcount * numcards * 2)/100
+    
+    def killer_hands(hole, board): #finds out hands which beat out your hand on the board
+        all_combos = Deck.generate_hand_combinations()
+        killer_num = 0
+        for hand in all_combos:  
+            if Eval.hand_ranking[Eval.get_hand(board + hand)] > Eval.hand_ranking[Eval.get_hand(board + hole)]:
+                #print(f"{Hand.user_hand(hand)}:{Eval.get_hand(board + hand)}")
+                killer_num += 1
+        return f"{round(killer_num/1326 * 100, 0)}% of all hands are killer"
+
 
 # Initialize the game by declaring initial stack and blinds
 user_stack = 100
@@ -617,6 +634,7 @@ ai_stack = 100
 bb = ''
 sb = ''
 
+#print(Eval.killer_hands([Card('A','s'), Card('2','s')],[Card('A','s'), Card('4','s'),Card('4','s')]))
 #print(Eval.get_outs([Card('A','s'),Card('2','s'),Card('3','s'),Card('4','s'),Card('6','h')]))
 # Start the game by calling preflop
 Game.preflop()
