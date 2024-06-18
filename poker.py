@@ -445,6 +445,7 @@ class Game:
                     print ('------------------------------------------------------------------------------- ')
                     user_stack += pot
                     Game.preflop()
+    
     def flop():
         #infodump
         print ('Pre-flop Action Over:')
@@ -463,12 +464,18 @@ class Game:
         if not Eval.get_hand(flop) == False:
             print(f"There is an {Eval.get_hand(flop)} on the board")
         
-        if not Eval.get_hand(flop + ai_cards) == False:
-            print(f"AI Hand: {Eval.get_hand(flop + ai_cards)}")
+        if Eval.get_hand(flop) == Eval.get_hand(flop + ai_cards):
+            ai_hand = 'high card'
         else:
-            Eval.highest_value_face(ai_cards)
+            ai_hand = Eval.get_hand(flop + ai_cards)
+
+        print(f"AI Hand: {ai_hand}")
         
-        print(f"Outs: {Eval.get_outs(flop + ai_cards)}")
+        #prints outs and equity after flop
+        outs, outscount = Eval.get_outs(flop + ai_cards)
+        print(f"Outs: {outs}")
+        print(f"{Eval.get_equity(outscount, 2) * 100}% Equity")
+
 
 class Eval: 
     #returns whether there is a pair, two pair, three of a kind, full house or four of a kind in given list of cards, if nothing, returns false
@@ -579,25 +586,30 @@ class Eval:
         #finds current hand of given cards and sets them to high card if given false
         current_hand = Eval.get_hand(cards)
         if current_hand == False:
-            current_hand == 'high card'
+            current_hand = 'high card'
         # Remove all input elements from the deck
         deck = [card for card in deck if card not in cards]
         outs_dict = {}
+        outs_count = 0
         for card in deck:
             # Create a new list that includes the current card without modifying the original cards list
             new_hand = cards + [card]
             # Get the hand type
             hand_type = Eval.get_hand(new_hand)
             #checks if there is a returned hand, the hand_type is not the same as without the added card, and the the resulting hand type is of greater value than the current hand of the cards without the added card
-            if hand_type and hand_type != current_hand and Eval.hand_ranking[current_hand] < Eval.hand_ranking[hand_type]:
+            if hand_type and hand_type != current_hand and (Eval.hand_ranking[current_hand] == False or Eval.hand_ranking[current_hand] < Eval.hand_ranking[hand_type]):
                 if hand_type not in outs_dict:
                     outs_dict[hand_type] = []
                 outs_dict[hand_type].append(card)
+                outs_count += 1
 
         # Convert the dictionary to a list of Outs objects
         outs = [Eval.Outs(hand_type, cards) for hand_type, cards in outs_dict.items()]
         
-        return outs
+        return outs, outs_count
+    
+    def get_equity(outcount, numcards): #returns equity using 4-2 rule when number of outs and number of cards left is input
+        return (outcount * numcards * 2)/100
 
 # Initialize the game by declaring initial stack and blinds
 user_stack = 100
@@ -605,7 +617,6 @@ ai_stack = 100
 bb = ''
 sb = ''
 
-#for testing: print(Eval.get_outs([Card('A','s'), Card('A','s'), Card('A','h'), Card('4','s'), Card('4','s'), Card('3','s') ]))
-
+#print(Eval.get_outs([Card('A','s'),Card('2','s'),Card('3','s'),Card('4','s'),Card('6','h')]))
 # Start the game by calling preflop
 Game.preflop()
