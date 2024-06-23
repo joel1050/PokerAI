@@ -9,7 +9,7 @@ class Card:
         self.face = face
         self.suit = suit
     
-    def __repr__(self): #returns string repr of object
+    def __repr__(self): #returns string representation of object
         return f"Card({self.face}, {self.suit})"
     
     def __eq__(self, other): #define how the == operator works for the object
@@ -467,7 +467,7 @@ class Game:
         print('Flop Comes: ' + ' '.join(f"{card.face}{Card.getSymbol(card.suit)}" for card in flop))# printing flop cards in one line
         print(f"Your Cards: {Hand.user_hand(user_cards)} || AI Cards: {Hand.user_hand(ai_cards)}")
 
-        if not Eval.get_hand(flop) == False:
+        if not Eval.get_hand(flop) == 'high card':
             print(f"There is an {Eval.get_hand(flop)} on the board")
         
         if Eval.get_hand(flop) == Eval.get_hand(flop + ai_cards):
@@ -480,7 +480,7 @@ class Game:
         #prints outs and equity after flop
         outs, outscount = Eval.get_outs(flop + ai_cards)
         print(f"Outs: {outs}")
-        print(f"{Eval.get_equity(outscount, 2) * 100}% Equity")
+        print(f"{round(Eval.get_equity(outscount, 2) * 100,0)}% Equity")
         print(Eval.killer_hands(ai_cards, flop))
 
 
@@ -623,7 +623,7 @@ class Eval:
         killer_num = 0
         for hand in all_combos:  
             if Eval.hand_ranking[Eval.get_hand(board + hand)] > Eval.hand_ranking[Eval.get_hand(board + hole)]:
-                #print(f"{Hand.user_hand(hand)}:{Eval.get_hand(board + hand)}")
+                print(f"{Hand.user_hand(hand)}:{Eval.get_hand(board + hand)}")
                 killer_num += 1
         return f"{round(killer_num/1326 * 100, 0)}% of all hands are killer"
 
