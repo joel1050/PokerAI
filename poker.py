@@ -294,7 +294,6 @@ class Game:
 
         range = ai_hand_ranking
 
-        # 
         match sb:
             case 'u':
                 user_action = input('You are first to act (Ca, Ra, Fo): ')
@@ -451,7 +450,7 @@ class Game:
                     print ('------------------------------------------------------------------------------- ')
                     user_stack += pot
                     Game.preflop()
-    
+
     def flop():
         #infodump
         print ('Pre-flop Action Over:')
@@ -482,6 +481,10 @@ class Game:
         print(f"Outs: {outs}")
         print(f"{round(Eval.get_equity(outscount, 2) * 100,0)}% Equity")
         print(Eval.killer_hands(ai_cards, flop))
+        hsi = Eval.hand_strength_index(ai_hand, flop, outs, 4)
+        print(f"Hand Strength Index: {hsi}")
+        
+
 
 
 class Eval: 
@@ -586,6 +589,12 @@ class Eval:
         def __repr__(self):
             output = [Card.user_card(card) for card in self.outs]
             return f"{self.hand_type},{output})"
+        
+        def get_draw_strength(outs,count): #multiplies strength of hand by equity from each out type, eg: 20% equity for one pair is 1*.2, 30% equity for flush will be 5*.3
+            acc = 0
+            for out in outs:
+                acc = acc + Eval.hand_ranking[out.hand_type] * (len(out.outs) * count/100)
+            return acc
 
     def get_outs(cards):
         # Generate the full deck
@@ -623,10 +632,22 @@ class Eval:
         killer_num = 0
         for hand in all_combos:  
             if Eval.hand_ranking[Eval.get_hand(board + hand)] > Eval.hand_ranking[Eval.get_hand(board + hole)]:
-                print(f"{Hand.user_hand(hand)}:{Eval.get_hand(board + hand)}")
+                #print(f"{Hand.user_hand(hand)}:{Eval.get_hand(board + hand)}")
                 killer_num += 1
         return f"{round(killer_num/1326 * 100, 0)}% of all hands are killer"
 
+    def hand_strength_index(hand, flop,  outs, outscount):
+        made_strength = Eval.hand_ranking[hand]
+        print(f"Made strength: {made_strength}")
+        draw_strength = Eval.Outs.get_draw_strength(outs,outscount)
+        print(f"Draw strength: {draw_strength}")
+        
+        flop_outs, indu = Eval.get_outs(flop)
+        ai_draw_strength = Eval.Outs.get_draw_strength(flop_outs,outscount) 
+        print(f"AI Draw Strength: {ai_draw_strength}")
+        return made_strength + draw_strength - ai_draw_strength
+    
+    
 
 # Initialize the game by declaring initial stack and blinds
 user_stack = 100
