@@ -14,11 +14,11 @@ A Heads-Up poker bot written in Python, which aims to replicate human-like play 
 
 # In Develelopment
  ~~- Calculating equity for a given hand and community cards by evaluating draws and finding their outs.~~
- 
  ~~- Finding Killer Cards (list of cards which, if possessed by either player, completes a draw or hand).~~
- - Assigning a hand-strength value to a hand based on made hand ranking and equity.
+ ~~- Assigning a hand-strength value to a hand based on made hand ranking and equity.~~
  - Assigning a hand-strength value to the opponents hand based on betting and checking frequences.
  - Finishing turn and river play
+ - Ability to evaluate strength of 'kickers' in one pair.
  - Recognizing which hand types are higher (eg. pair of aces are higher than a pair of 2s).
  - Tracking user statistics like 3b%, VPIP and other metrics to adjust AI betting and bluffing frequences.
  - Making the GUI have the same feature set as the main file.
